@@ -1,12 +1,12 @@
 mod lake;
+use anyhow::Result;
+use lake::Environment;
 use lake::Lake;
 
 const X: bool = true;
 const O: bool = false;
 
-fn main() {
-    println!("Hello, world!");
-
+fn main() -> Result<()> {
     #[rustfmt::skip]
     let map: Vec<_> = [
         [O, O, O, O],
@@ -19,5 +19,8 @@ fn main() {
         .cloned()
         .collect();
 
-    let lake = Lake::new(&map, 4);
+    let mut lake = Lake::new(&map, 4)?;
+    let _obs = lake.reset();
+
+    Ok(())
 }

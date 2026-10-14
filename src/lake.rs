@@ -5,7 +5,7 @@ type Action = Direction;
 type Observation = usize;
 
 #[derive(Clone, Copy, Debug)]
-enum Direction {
+pub enum Direction {
     Up,
     Down,
     Left,
@@ -32,16 +32,16 @@ impl Direction {
     }
 }
 
-struct StepResult {
+pub struct StepResult {
     observation: Observation,
     reward: usize,
     terminated: bool,
     truncated: bool,
 }
 
-trait Environment {
-    fn reset() -> Observation;
-    fn step(action: Action) -> StepResult;
+pub trait Environment {
+    fn reset(&mut self) -> Observation;
+    fn step(&mut self, action: Action) -> StepResult;
 }
 
 pub struct Lake {
@@ -93,11 +93,12 @@ impl Lake {
 }
 
 impl Environment for Lake {
-    fn reset() -> Observation {
+    fn reset(&mut self) -> Observation {
+        self.pos = (0, 0);
         0
     }
 
-    fn step(action: Action) -> StepResult {
+    fn step(&mut self, action: Action) -> StepResult {
         StepResult {
             observation: 0,
             reward: 0,
