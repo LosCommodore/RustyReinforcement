@@ -1,4 +1,5 @@
 #![allow(unused)]
+use anyhow::{Result, bail};
 
 type Action = Direction;
 type Observation = usize;
@@ -13,11 +14,21 @@ enum Direction {
 
 impl Direction {
     fn orthogonal(&self) -> [Direction; 2] {
-        todo!()
+        use Direction::*;
+        match self {
+            Up | Down => [Left, Right],
+            Left | Right => [Up, Down],
+        }
     }
 
-    fn vector() -> (usize, usize) {
-        todo!()
+    fn vector(&self) -> (isize, isize) {
+        use Direction::*;
+        match self {
+            Up => (-1, 0),
+            Down => (1, 0),
+            Right => (0, 1),
+            Left => (0, -1),
+        }
     }
 }
 
@@ -29,11 +40,11 @@ struct StepResult {
 }
 
 trait Environment {
-    fn reset() -> usize;
+    fn reset() -> Observation;
     fn step(action: Action) -> StepResult;
 }
 
-struct Lake {
+pub struct Lake {
     pos: (usize, usize),
     width: usize,
     height: usize,
@@ -41,24 +52,25 @@ struct Lake {
 }
 
 impl Lake {
-    fn new() -> Self {
-        let width = 4;
-        let height = 4;
-        let map = vec![false; width * height];
-        let pos = 0;
-
-        // set some random pits
-
-        Lake {
-            width,
-            height,
-            map,
-            pos,
+    pub fn new(map: &[bool], width: usize) -> Result<Self> {
+        if width < 2 {
+            bail!("Minimal with is 2")
         }
+
+        if map.len() % width != 0 {
+            bail!("Invalid input array, wrong width")
+        }
+
+        Ok(Lake {
+            width,
+            height: map.len() / width,
+            map: map.to_vec(),
+            pos: (0, 0),
+        })
     }
 
     fn get_walk_direction(&self, direction: Direction) -> Direction {
-        let p: usize = 1; // random integer from 0,1,2
+        let p: usize = rand::random_range(0..=2);
 
         if p == 2 {
             return direction;
@@ -69,13 +81,19 @@ impl Lake {
 
     fn walk(&mut self, direction: Direction) {
         let d = self.get_walk_direction(direction);
+        let (y, x) = d.vector();
+        let y2 = (self.pos.0 as isize + y).clamp(0, self.height as isize) as usize;
+        let x2 = (self.pos.1 as isize + x).clamp(0, self.width as isize) as usize;
+        self.pos = (y2, x2);
+    }
 
-        // bound ? -> do nothing
+    fn is_pit(&self, y: usize, x: usize) -> bool {
+        self.map[y * self.width + x]
     }
 }
 
 impl Environment for Lake {
-    fn reset() -> usize {
+    fn reset() -> Observation {
         0
     }
 
