@@ -31,13 +31,13 @@ fn iter_grid(
     }
 }
 
-fn draw_grid(dim_x: usize, dim_y: usize, map: Vec<bool>) {
-    let w_cell = screen_width() / dim_x as f32;
-    let h_cell = screen_height() / dim_y as f32;
+fn draw_grid(map: &Matrix<bool>) {
+    let w_cell = screen_width() / map.width() as f32;
+    let h_cell = screen_height() / map.height() as f32;
 
-    let it = iter_grid(dim_x, dim_y, w_cell, h_cell);
+    let it = iter_grid(map.width(), map.height(), w_cell, h_cell);
     for ((ix, iy), (x, y)) in it {
-        let color = if map[ix + dim_x * iy] == true {
+        let color = if map[(iy,ix)] == true {
             GREEN
         } else {
             RED
@@ -45,6 +45,14 @@ fn draw_grid(dim_x: usize, dim_y: usize, map: Vec<bool>) {
 
         draw_rectangle(x, y, w_cell, h_cell, color);
         draw_rectangle_lines(x, y, w_cell, h_cell, 2., BLACK);
+    }
+}
+
+async fn main_loop(lake: &Lake) {
+    loop {
+        clear_background(BLUE);
+        draw_grid(lake.map());
+        next_frame().await
     }
 }
 
@@ -62,17 +70,6 @@ async fn main() -> Result<()> {
 
     let mut lake: Lake = Lake::new(map)?;
     let _obs = lake.reset();
-
-    loop {
-        clear_background(BLUE);
-
-        draw_grid(4, 3, vec![false; 12]);
-        /*
-        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
-        */
-
-        next_frame().await
-    }
+    main_loop(&lake).await;
+    Ok(())
 }

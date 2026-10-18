@@ -82,6 +82,10 @@ impl Lake {
     fn is_pit(&self, y: usize, x: usize) -> bool {
         self.map[(y * self.map.width(), x)]
     }
+
+    pub fn map(&self) -> &Matrix<bool> {
+        &self.map
+    }
 }
 
 impl Environment for Lake {
