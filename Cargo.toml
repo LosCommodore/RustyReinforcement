@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.104"
 macroquad = "0.4.16"
+num-traits = "0.2.19"
 rand = "0.10.3"
 thiserror = "2.0.21"

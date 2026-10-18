@@ -1,6 +1,6 @@
 #![allow(unused)]
+use super::matrix::Matrix;
 use anyhow::{Result, bail};
-
 type Action = Direction;
 type Observation = usize;
 
@@ -45,27 +45,19 @@ pub trait Environment {
 }
 
 pub struct Lake {
-    pos: (usize, usize),
-    width: usize,
-    height: usize,
-    map: Vec<bool>,
+    player_pos: (usize, usize),
+    map: Matrix<bool>,
 }
 
 impl Lake {
-    pub fn new(map: &[bool], width: usize) -> Result<Self> {
-        if width < 2 {
+    pub fn new(map: Matrix<bool>) -> Result<Self> {
+        if map.width() < 2 {
             bail!("Minimal with is 2")
         }
 
-        if map.len() % width != 0 {
-            bail!("Invalid input array, wrong width")
-        }
-
         Ok(Lake {
-            width,
-            height: map.len() / width,
-            map: map.to_vec(),
-            pos: (0, 0),
+            map: map,
+            player_pos: (0, 0),
         })
     }
 
@@ -82,19 +74,19 @@ impl Lake {
     fn walk(&mut self, direction: Direction) {
         let d = self.get_walk_direction(direction);
         let (y, x) = d.vector();
-        let y2 = (self.pos.0 as isize + y).clamp(0, self.height as isize) as usize;
-        let x2 = (self.pos.1 as isize + x).clamp(0, self.width as isize) as usize;
-        self.pos = (y2, x2);
+        let y2 = (self.player_pos.0 as isize + y).clamp(0, self.map.height() as isize) as usize;
+        let x2 = (self.player_pos.1 as isize + x).clamp(0, self.map.width() as isize) as usize;
+        self.player_pos = (y2, x2);
     }
 
     fn is_pit(&self, y: usize, x: usize) -> bool {
-        self.map[y * self.width + x]
+        self.map[(y * self.map.width(), x)]
     }
 }
 
 impl Environment for Lake {
     fn reset(&mut self) -> Observation {
-        self.pos = (0, 0);
+        self.player_pos = (0, 0);
         0
     }
 

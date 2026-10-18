@@ -1,6 +1,8 @@
 #![feature(gen_blocks)]
 
 mod lake;
+mod matrix;
+use anyhow::Result;
 use lake::Environment;
 use lake::Lake;
 
@@ -9,18 +11,21 @@ const O: bool = false;
 
 use macroquad::prelude::*;
 
+use crate::matrix::Matrix;
+
+/// Iterator returning grid positions ((ix, iy), (x, y))
 fn iter_grid(
     dim_x: usize,
     dim_y: usize,
     w_cell: f32,
     h_cell: f32,
-) -> impl Iterator<Item = (usize, usize, f32, f32)> {
+) -> impl Iterator<Item = ((usize, usize), (f32, f32))> {
     gen move {
         for iy in 0..dim_y {
             for ix in 0..dim_x {
                 let x = (ix as f32 * w_cell) as f32;
                 let y = (iy as f32 * h_cell) as f32;
-                yield (ix, iy, x, y)
+                yield ((ix, iy), (x, y))
             }
         }
     }
@@ -31,7 +36,7 @@ fn draw_grid(dim_x: usize, dim_y: usize, map: Vec<bool>) {
     let h_cell = screen_height() / dim_y as f32;
 
     let it = iter_grid(dim_x, dim_y, w_cell, h_cell);
-    for (ix, iy, x, y) in it {
+    for ((ix, iy), (x, y)) in it {
         let color = if map[ix + dim_x * iy] == true {
             GREEN
         } else {
@@ -44,20 +49,18 @@ fn draw_grid(dim_x: usize, dim_y: usize, map: Vec<bool>) {
 }
 
 #[macroquad::main("MyGame")]
-async fn main() {
+async fn main() -> Result<()> {
     #[rustfmt::skip]
-    let map: Vec<_> = [
-        [O, O, O, O],
-        [O, X, O, X], 
-        [O, O, O, X], 
-        [X, O, O, O]
-        ]
-        .iter()
-        .flatten()
-        .cloned()
-        .collect();
+    let map: Vec<bool> = vec![
+        O, O, O, O,
+        O, X, O, X, 
+        O, O, O, X, 
+        X, O, O, O
+        ];
 
-    let mut lake = Lake::new(&map, 4).expect("ups");
+    let map: Matrix<bool> = Matrix::from_vec(map, 4, 4)?;
+
+    let mut lake: Lake = Lake::new(map)?;
     let _obs = lake.reset();
 
     loop {
