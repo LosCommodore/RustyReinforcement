@@ -1,6 +1,8 @@
 #![allow(unused)]
 use super::matrix::Matrix;
 use anyhow::{Result, bail};
+use core::num;
+use rand::seq::IndexedRandom;
 type Action = Direction;
 type Observation = usize;
 
@@ -13,6 +15,8 @@ pub enum Direction {
 }
 
 impl Direction {
+    const ALL: [Action; 4] = [Action::Left, Action::Down, Action::Right, Action::Up];
+
     fn orthogonal(&self) -> [Direction; 2] {
         use Direction::*;
         match self {
@@ -42,22 +46,27 @@ pub struct StepResult {
 pub trait Environment {
     fn reset(&mut self) -> Observation;
     fn step(&mut self, action: Action) -> StepResult;
+    fn sample(&self) -> Action;
 }
 
 pub struct Lake {
     player_pos: (usize, usize),
     map: Matrix<bool>,
+    step_counter: usize,
+    max_steps: usize,
 }
 
 impl Lake {
-    pub fn new(map: Matrix<bool>) -> Result<Self> {
+    pub fn new(map: Matrix<bool>, max_steps: usize) -> Result<Self> {
         if map.width() < 2 {
             bail!("Minimal with is 2")
         }
 
         Ok(Lake {
-            map: map,
+            map,
             player_pos: (0, 0),
+            step_counter: 0,
+            max_steps,
         })
     }
 
@@ -95,11 +104,22 @@ impl Environment for Lake {
     }
 
     fn step(&mut self, action: Action) -> StepResult {
+        self.walk(action);
+
+        let observation = self.player_pos.0 * self.map.width() + self.player_pos.1;
+        let num_fields = self.map().width() * self.map.height();
+        self.step_counter += 1;
+
         StepResult {
-            observation: 0,
-            reward: 0,
-            terminated: false,
-            truncated: false,
+            observation,
+            reward: (observation == num_fields - 1) as usize,
+            terminated: self.map()[self.player_pos],
+            truncated: self.step_counter >= self.max_steps,
         }
+    }
+
+    fn sample(&self) -> Action {
+        let mut rng = rand::rng();
+        *Action::ALL.choose(&mut rng).unwrap()
     }
 }
