@@ -37,10 +37,10 @@ impl Direction {
 }
 
 pub struct StepResult {
-    observation: Observation,
-    reward: usize,
-    terminated: bool,
-    truncated: bool,
+    pub observation: Observation,
+    pub reward: usize,
+    pub terminated: bool,
+    pub truncated: bool,
 }
 
 pub trait Environment {
@@ -94,6 +94,10 @@ impl Lake {
 
     pub fn map(&self) -> &Matrix<bool> {
         &self.map
+    }
+
+    pub fn player_pos(&self) -> (usize, usize) {
+        self.player_pos
     }
 }
 
