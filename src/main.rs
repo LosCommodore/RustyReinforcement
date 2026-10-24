@@ -7,6 +7,7 @@ mod matrix;
 use crate::draw::draw_figure;
 use crate::matrix::Matrix;
 use macroquad::prelude::*;
+use num_traits::Num;
 
 use anyhow::Result;
 use draw::draw_grid;
@@ -23,8 +24,8 @@ pub struct StepResult<T> {
 }
 
 pub trait Environment {
-    type A; // Action
-    type O; // Observation
+    type A: Copy; // Action
+    type O: Num + Copy; // Observation
 
     fn reset(&mut self) -> Self::O;
     fn step(&mut self, action: Self::A) -> StepResult<Self::O>;

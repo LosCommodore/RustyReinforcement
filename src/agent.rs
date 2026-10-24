@@ -4,10 +4,15 @@ use crate::Environment;
 
 use super::lake::Lake;
 
-struct Agent {}
+struct Agent<E: Environment> {
+    current_state: E::O,
+}
 
-impl Agent {
-    fn act(env: &mut impl Environment) {
+impl<E: Environment> Agent<E> {
+    fn play_n_random_steps(&self, env: &mut impl Environment) {
+        let action = env.sample();
+        let step = env.step(action);
+        let transition = (self.current_state, step.observation, action);
         todo!()
     }
 }
