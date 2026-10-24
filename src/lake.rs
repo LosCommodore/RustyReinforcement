@@ -1,10 +1,10 @@
 #![allow(unused)]
+use crate::{Environment, StepResult};
+
 use super::matrix::Matrix;
 use anyhow::{Result, bail};
 use core::num;
 use rand::seq::IndexedRandom;
-type Action = Direction;
-type Observation = usize;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Direction {
@@ -13,6 +13,9 @@ pub enum Direction {
     Left,
     Right,
 }
+
+type Action = Direction;
+type Observation = usize;
 
 impl Direction {
     const ALL: [Action; 4] = [Action::Left, Action::Down, Action::Right, Action::Up];
@@ -34,19 +37,6 @@ impl Direction {
             Left => (0, -1),
         }
     }
-}
-
-pub struct StepResult {
-    pub observation: Observation,
-    pub reward: usize,
-    pub terminated: bool,
-    pub truncated: bool,
-}
-
-pub trait Environment {
-    fn reset(&mut self) -> Observation;
-    fn step(&mut self, action: Action) -> StepResult;
-    fn sample(&self) -> Action;
 }
 
 pub struct Lake {
@@ -102,12 +92,15 @@ impl Lake {
 }
 
 impl Environment for Lake {
+    type A = Action;
+    type O = Observation;
+
     fn reset(&mut self) -> Observation {
         self.player_pos = (0, 0);
         0
     }
 
-    fn step(&mut self, action: Action) -> StepResult {
+    fn step(&mut self, action: Action) -> StepResult<Observation> {
         self.walk(action);
 
         let observation = self.player_pos.0 * self.map.width() + self.player_pos.1;

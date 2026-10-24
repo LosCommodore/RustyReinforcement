@@ -1,20 +1,35 @@
 #![feature(gen_blocks)]
-
+mod agent;
 mod draw;
 mod lake;
 mod matrix;
+
+use crate::draw::draw_figure;
+use crate::matrix::Matrix;
+use macroquad::prelude::*;
+
 use anyhow::Result;
 use draw::draw_grid;
-use lake::Environment;
 use lake::Lake;
 
 const X: bool = true;
 const O: bool = false;
 
-use crate::draw::draw_figure;
-use crate::lake::StepResult;
-use crate::matrix::Matrix;
-use macroquad::prelude::*;
+pub struct StepResult<T> {
+    pub observation: T,
+    pub reward: usize,
+    pub terminated: bool,
+    pub truncated: bool,
+}
+
+pub trait Environment {
+    type A; // Action
+    type O; // Observation
+
+    fn reset(&mut self) -> Self::O;
+    fn step(&mut self, action: Self::A) -> StepResult<Self::O>;
+    fn sample(&self) -> Self::A;
+}
 
 async fn main_loop(lake: &mut Lake) -> bool {
     lake.reset();
