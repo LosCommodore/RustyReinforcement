@@ -74,8 +74,8 @@ impl Lake {
     fn walk(&mut self, direction: Direction) {
         let d = self.get_walk_direction(direction);
         let (y, x) = d.vector();
-        let y2 = (self.player_pos.0 as isize + y).clamp(0, self.map.height() as isize) as usize;
-        let x2 = (self.player_pos.1 as isize + x).clamp(0, self.map.width() as isize) as usize;
+        let y2 = self.player_pos.0.saturating_add_signed(y).min(self.map.height() - 1);
+        let x2 = self.player_pos.1.saturating_add_signed(x).min(self.map.width() - 1);
         self.player_pos = (y2, x2);
     }
 

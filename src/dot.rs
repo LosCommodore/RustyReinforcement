@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{agent::QIterAgent, environment::Environment};
 use anyhow::{Context, Result};
 use minijinja::context;
@@ -25,9 +27,18 @@ impl DotRenderer {
     {
         let tr = agent.rewards();
 
+        let n: HashSet<_> = tr.keys().into_iter().map(|x| x.source).collect();
+
+        /*
         let nodes: Vec<minijinja::Value> = tr
             .into_iter()
-            .map(|(k, v)| context! { id => k.dest.into(), score => 53 })
+            .map(|(k, _v)| context! { id => k.dest.into(), score => 53 })
+            .collect();
+        */
+
+        let nodes: Vec<minijinja::Value> = n
+            .into_iter()
+            .map(|x| context! { id => x.into(), score => 53 })
             .collect();
 
         let template = self.env.get_template(TEMPLATE_NAME).unwrap();

@@ -85,6 +85,7 @@ impl<E: Environment> QIterAgent<E> {
         }
     }
 
+    #[allow(unused)]
     pub(crate) fn transition_counters(&self) -> &HashMap<TransitionOf<E>, Counter<E::O>> {
         &self.transition_counters
     }
