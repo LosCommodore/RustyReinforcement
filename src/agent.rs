@@ -85,9 +85,6 @@ impl<E: Environment> QIterAgent<E> {
             rewards: HashMap::new(),
         }
     }
-}
-
-impl<E: Environment> QIterAgent<E> {
     fn play_n_random_steps(&mut self, env: &mut E, nr_steps: usize) {
         for s in 0..nr_steps {
             let (route, reward) = self.random_executor.random_step();

@@ -18,7 +18,7 @@ use lake::Lake;
 const X: bool = true;
 const O: bool = false;
 
-async fn main_loop(lake: &mut Lake) -> bool {
+async fn display_loop(lake: &mut Lake) -> bool {
     lake.reset();
     loop {
         clear_background(BLUE);
@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
 
     let mut lake: Lake = Lake::new(map, 100)?;
     let train_lake = lake.clone();
-    let _agent = QIterAgent::new(train_lake);
-    main_loop(&mut lake).await;
+    let agent = QIterAgent::new(train_lake);
+    agent.display_loop(&mut lake).await;
     Ok(())
 }
