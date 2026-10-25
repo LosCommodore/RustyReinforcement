@@ -62,9 +62,10 @@ async fn main() -> Result<()> {
 
     let map: Matrix<bool> = Matrix::from_vec(map, 4, 4)?;
 
-    let mut lake: Lake = Lake::new(map, 100)?;
-    let train_lake = lake.clone();
-    let agent = QIterAgent::new(train_lake);
-    agent.display_loop(&mut lake).await;
+    let mut lake: Lake = Lake::new(map, 200)?;
+    let mut agent = QIterAgent::new(&lake);
+    agent.play_random(100);
+
+    display_loop(&mut lake).await;
     Ok(())
 }

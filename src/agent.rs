@@ -1,16 +1,13 @@
-#![allow(unused)]
-use super::lake::Lake;
 use crate::environment::{Environment, StepResult};
-use crate::lake::Direction;
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::path::Iter;
 
 type Counter<T> = HashMap<T, usize>;
 
+#[allow(unused)]
 pub struct QIterAgent<E: Environment> {
     random_executor: RandomActionExecutor<E>,
-    transition_counters: HashMap<Transition<E::O, E::A>, Counter<E::O>>,
+    transition_counters: HashMap<TransitionOf<E>, Counter<E::O>>,
     rewards: HashMap<Route<E::O, E::A>, E::R>,
 }
 
@@ -26,6 +23,8 @@ struct Transition<O: Eq + Hash, A: Eq + Hash> {
     source: O,
     action: A,
 }
+
+type TransitionOf<E> = Transition<<E as Environment>::O, <E as Environment>::A>;
 
 struct RandomActionExecutor<E: Environment> {
     env: E,
@@ -78,15 +77,15 @@ impl<E: Environment> Iterator for RandomActionExecutor<E> {
 }
 
 impl<E: Environment> QIterAgent<E> {
-    pub fn new(training_env: E) -> Self {
+    pub fn new(env: &E) -> Self {
         Self {
-            random_executor: RandomActionExecutor::new(training_env),
+            random_executor: RandomActionExecutor::new(env.clone()),
             transition_counters: HashMap::new(),
             rewards: HashMap::new(),
         }
     }
-    fn play_n_random_steps(&mut self, env: &mut E, nr_steps: usize) {
-        for s in 0..nr_steps {
+    pub fn play_random(&mut self, nr_steps: usize) {
+        for _ in 0..nr_steps {
             let (route, reward) = self.random_executor.random_step();
             let transition = Transition {
                 source: route.source,
@@ -97,7 +96,7 @@ impl<E: Environment> QIterAgent<E> {
             *self
                 .transition_counters
                 .entry(transition)
-                .or_insert(Counter::new())
+                .or_default()
                 .entry(route.dest)
                 .or_default() += 1;
         }

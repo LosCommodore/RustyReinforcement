@@ -8,7 +8,7 @@ pub struct StepResult<E: Environment + ?Sized> {
     pub truncated: bool,
 }
 
-pub trait Environment {
+pub trait Environment: Clone {
     type A: Copy + Hash + Eq; // Action
     type O: Num + Copy + Hash + Eq; // Observation
     type R: Num + Copy + Hash; // Reward
