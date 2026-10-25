@@ -7,7 +7,7 @@ use std::hash::Hash;
 use std::path::Iter;
 
 struct Agent<E: Environment> {
-    random_executor: RandomActionExecutor,
+    random_executor: RandomActionExecutor<E>,
     rewards: HashMap<Transition<E::O, E::A>, E::R>,
 }
 
@@ -18,31 +18,31 @@ struct Transition<O: Eq + Hash, A: Eq + Hash> {
     action: A,
 }
 
-struct RandomActionExecutor {
-    lake: Lake,
-    state: usize,
+struct RandomActionExecutor<E: Environment> {
+    env: E,
+    state: E::O,
 }
 
 /// Executes a random action on its environment infinity and resets the
 /// environment always when it is finished.
-impl RandomActionExecutor {
-    fn new(mut lake: Lake) -> Self {
-        let observation = lake.reset();
+impl<E: Environment> RandomActionExecutor<E> {
+    fn new(mut env: E) -> Self {
+        let observation = env.reset();
         Self {
-            lake,
+            env,
             state: observation,
         }
     }
 
-    pub fn random_step(&mut self) -> (Transition<usize, Direction>, usize) {
-        let action = self.lake.sample();
+    pub fn random_step(&mut self) -> (Transition<E::O, E::A>, E::R) {
+        let action = self.env.sample();
 
         let StepResult {
             observation,
             reward,
             terminated,
             truncated,
-        } = self.lake.step(action);
+        } = self.env.step(action);
 
         let transition = Transition {
             source: self.state,
@@ -51,7 +51,7 @@ impl RandomActionExecutor {
         };
 
         self.state = if terminated || truncated {
-            self.lake.reset()
+            self.env.reset()
         } else {
             observation
         };
@@ -60,8 +60,8 @@ impl RandomActionExecutor {
     }
 }
 
-impl Iterator for RandomActionExecutor {
-    type Item = (Transition<usize, Direction>, usize);
+impl<E: Environment> Iterator for RandomActionExecutor<E> {
+    type Item = (Transition<E::O, E::A>, E::R);
 
     fn next(&mut self) -> Option<Self::Item> {
         Some(self.random_step())
