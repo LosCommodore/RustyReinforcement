@@ -7,6 +7,10 @@
     "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "never",
     "cSpell.words": [
         "DARKGRAY",
-        "macroquad"
+        "endfor",
+        "fontsize",
+        "labelloc",
+        "macroquad",
+        "neato"
     ]
 }

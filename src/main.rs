@@ -1,5 +1,6 @@
 #![feature(gen_blocks)]
 mod agent;
+mod dot;
 mod draw;
 mod environment;
 mod lake;

@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.104"
 macroquad = "0.4.16"
+minijinja = "3.0.3"
 num-traits = "0.2.19"
 rand = "0.10.3"

@@ -1,0 +1,30 @@
+{#-
+  Transition graph of the agent.
+
+  Expected context:
+    title  (optional) graph title
+    nodes  list of { id, score }
+             id     state id (e.g. 0..15)
+             score  value of the state (number)
+             pos    (optional) "x,y" position, use with `neato -n`
+    edges  list of { src, dst, action, count }
+             src, dst  state ids
+             action    action taken (e.g. "Left")
+             count     how often this transition was observed
+-#}
+digraph agent {
+    {%- if title %}
+    label="{{ title }}";
+    labelloc=t;
+    {%- endif %}
+    node [shape=circle, fontsize=10];
+    edge [fontsize=8];
+
+    {%- for n in nodes %}
+    s{{ n.id }} [label="s{{ n.id }}\n{{ n.score|round(2) }}"{% if n.pos %}, pos="{{ n.pos }}!"{% endif %}];
+    {%- endfor %}
+
+    {%- for e in edges %}
+    s{{ e.src }} -> s{{ e.dst }} [label="{{ e.action }}: {{ e.count }}"];
+    {%- endfor %}
+}

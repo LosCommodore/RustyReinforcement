@@ -84,6 +84,15 @@ impl<E: Environment> QIterAgent<E> {
             rewards: HashMap::new(),
         }
     }
+
+    pub(crate) fn transition_counters(&self) -> &HashMap<TransitionOf<E>, Counter<E::O>> {
+        &self.transition_counters
+    }
+
+    pub(crate) fn rewards(&self) -> &HashMap<Route<E::O, E::A>, E::R> {
+        &self.rewards
+    }
+
     pub fn play_random(&mut self, nr_steps: usize) {
         for _ in 0..nr_steps {
             let (route, reward) = self.random_executor.random_step();
