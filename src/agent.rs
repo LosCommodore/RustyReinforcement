@@ -12,16 +12,16 @@ pub struct QIterAgent<E: Environment> {
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
-struct Route<O: Eq + Hash, A: Eq + Hash> {
-    source: O,
-    dest: O,
-    action: A,
+pub struct Route<O: Eq + Hash, A: Eq + Hash> {
+    pub source: O,
+    pub dest: O,
+    pub action: A,
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
-struct Transition<O: Eq + Hash, A: Eq + Hash> {
-    source: O,
-    action: A,
+pub struct Transition<O: Eq + Hash, A: Eq + Hash> {
+    pub source: O,
+    pub action: A,
 }
 
 type TransitionOf<E> = Transition<<E as Environment>::O, <E as Environment>::A>;

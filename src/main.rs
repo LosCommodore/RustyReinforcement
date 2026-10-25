@@ -6,6 +6,7 @@ mod environment;
 mod lake;
 mod matrix;
 use crate::agent::QIterAgent;
+use crate::dot::DotRenderer;
 use crate::draw::draw_figure;
 use crate::environment::StepResult;
 use crate::matrix::Matrix;
@@ -66,6 +67,13 @@ async fn main() -> Result<()> {
     let mut lake: Lake = Lake::new(map, 200)?;
     let mut agent = QIterAgent::new(&lake);
     agent.play_random(100);
+
+    let dr = DotRenderer::new()?;
+    let render_txt = dr.render_agent(agent);
+    std::fs::write("agent.dot", render_txt)?;
+    std::process::Command::new("dot")
+        .args(["-Tpng", "agent.dot", "-o", "agent.png"])
+        .status()?;
 
     display_loop(&mut lake).await;
     Ok(())

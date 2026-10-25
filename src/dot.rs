@@ -18,16 +18,20 @@ impl DotRenderer {
         Ok(Self { env })
     }
 
-    pub fn render_agent<E: Environment>(&self, agent: QIterAgent<E>) -> String {
+    pub fn render_agent<E: Environment>(&self, agent: QIterAgent<E>) -> String
+    where
+        E::O: Into<minijinja::Value>,
+        E::R: Into<minijinja::Value>,
+    {
         let tr = agent.rewards();
 
         let nodes: Vec<minijinja::Value> = tr
             .into_iter()
-            .map(|(k, v)| context! { id => k, score => v })
+            .map(|(k, v)| context! { id => k.dest.into(), score => 53 })
             .collect();
 
         let template = self.env.get_template(TEMPLATE_NAME).unwrap();
 
-        template.render(context! { name => "World" }).unwrap()
+        template.render(nodes).unwrap()
     }
 }
