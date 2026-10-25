@@ -1,11 +1,17 @@
 #![allow(unused)]
 
-use crate::Environment;
+use crate::environment::Environment;
 
 use super::lake::Lake;
 
 struct Agent<E: Environment> {
     current_state: E::O,
+}
+
+struct Transition<E: Environment> {
+    source: E::O,
+    dest: E::O,
+    reward: E::R,
 }
 
 impl<E: Environment> Agent<E> {

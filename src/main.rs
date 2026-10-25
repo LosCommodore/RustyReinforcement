@@ -1,13 +1,15 @@
 #![feature(gen_blocks)]
 mod agent;
 mod draw;
+mod environment;
 mod lake;
 mod matrix;
+use environment::Environment;
 
 use crate::draw::draw_figure;
+use crate::environment::StepResult;
 use crate::matrix::Matrix;
 use macroquad::prelude::*;
-use num_traits::Num;
 
 use anyhow::Result;
 use draw::draw_grid;
@@ -15,22 +17,6 @@ use lake::Lake;
 
 const X: bool = true;
 const O: bool = false;
-
-pub struct StepResult<T> {
-    pub observation: T,
-    pub reward: usize,
-    pub terminated: bool,
-    pub truncated: bool,
-}
-
-pub trait Environment {
-    type A: Copy; // Action
-    type O: Num + Copy; // Observation
-
-    fn reset(&mut self) -> Self::O;
-    fn step(&mut self, action: Self::A) -> StepResult<Self::O>;
-    fn sample(&self) -> Self::A;
-}
 
 async fn main_loop(lake: &mut Lake) -> bool {
     lake.reset();

@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::{Environment, StepResult};
+use crate::environment::{Environment, StepResult};
 
 use super::matrix::Matrix;
 use anyhow::{Result, bail};
@@ -94,13 +94,14 @@ impl Lake {
 impl Environment for Lake {
     type A = Action;
     type O = Observation;
+    type R = usize;
 
     fn reset(&mut self) -> Observation {
         self.player_pos = (0, 0);
         0
     }
 
-    fn step(&mut self, action: Action) -> StepResult<Observation> {
+    fn step(&mut self, action: Action) -> StepResult<Self> {
         self.walk(action);
 
         let observation = self.player_pos.0 * self.map.width() + self.player_pos.1;
