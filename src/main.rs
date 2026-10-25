@@ -4,11 +4,11 @@ mod draw;
 mod environment;
 mod lake;
 mod matrix;
-use environment::Environment;
-
+use crate::agent::QIterAgent;
 use crate::draw::draw_figure;
 use crate::environment::StepResult;
 use crate::matrix::Matrix;
+use environment::Environment;
 use macroquad::prelude::*;
 
 use anyhow::Result;
@@ -63,6 +63,8 @@ async fn main() -> Result<()> {
     let map: Matrix<bool> = Matrix::from_vec(map, 4, 4)?;
 
     let mut lake: Lake = Lake::new(map, 100)?;
+    let train_lake = lake.clone();
+    let _agent = QIterAgent::new(train_lake);
     main_loop(&mut lake).await;
     Ok(())
 }

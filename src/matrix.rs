@@ -3,6 +3,7 @@
 use anyhow::{Result, bail};
 use std::ops::{Index, IndexMut};
 
+#[derive(Debug, Clone)]
 pub struct Matrix<T> {
     width: usize,
     height: usize,

@@ -39,6 +39,7 @@ impl Direction {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Lake {
     player_pos: (usize, usize),
     map: Matrix<bool>,

@@ -6,15 +6,24 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::path::Iter;
 
-struct Agent<E: Environment> {
+type Counter<T> = HashMap<T, usize>;
+
+pub struct QIterAgent<E: Environment> {
     random_executor: RandomActionExecutor<E>,
-    rewards: HashMap<Transition<E::O, E::A>, E::R>,
+    transition_counters: HashMap<Transition<E::O, E::A>, Counter<E::O>>,
+    rewards: HashMap<Route<E::O, E::A>, E::R>,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq)]
-struct Transition<O: Eq + Hash, A: Eq + Hash> {
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+struct Route<O: Eq + Hash, A: Eq + Hash> {
     source: O,
     dest: O,
+    action: A,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
+struct Transition<O: Eq + Hash, A: Eq + Hash> {
+    source: O,
     action: A,
 }
 
@@ -34,7 +43,7 @@ impl<E: Environment> RandomActionExecutor<E> {
         }
     }
 
-    pub fn random_step(&mut self) -> (Transition<E::O, E::A>, E::R) {
+    pub fn random_step(&mut self) -> (Route<E::O, E::A>, E::R) {
         let action = self.env.sample();
 
         let StepResult {
@@ -44,7 +53,7 @@ impl<E: Environment> RandomActionExecutor<E> {
             truncated,
         } = self.env.step(action);
 
-        let transition = Transition {
+        let transition = Route {
             source: self.state,
             dest: observation,
             action,
@@ -61,18 +70,39 @@ impl<E: Environment> RandomActionExecutor<E> {
 }
 
 impl<E: Environment> Iterator for RandomActionExecutor<E> {
-    type Item = (Transition<E::O, E::A>, E::R);
+    type Item = (Route<E::O, E::A>, E::R);
 
     fn next(&mut self) -> Option<Self::Item> {
         Some(self.random_step())
     }
 }
 
-impl<E: Environment> Agent<E> {
+impl<E: Environment> QIterAgent<E> {
+    pub fn new(training_env: E) -> Self {
+        Self {
+            random_executor: RandomActionExecutor::new(training_env),
+            transition_counters: HashMap::new(),
+            rewards: HashMap::new(),
+        }
+    }
+}
+
+impl<E: Environment> QIterAgent<E> {
     fn play_n_random_steps(&mut self, env: &mut E, nr_steps: usize) {
         for s in 0..nr_steps {
-            let (transition, reward) = self.random_executor.random_step();
-            self.rewards.insert(transition, reward);
+            let (route, reward) = self.random_executor.random_step();
+            let transition = Transition {
+                source: route.source,
+                action: route.action,
+            };
+
+            self.rewards.insert(route.clone(), reward);
+            *self
+                .transition_counters
+                .entry(transition)
+                .or_insert(Counter::new())
+                .entry(route.dest)
+                .or_default() += 1;
         }
     }
 }
