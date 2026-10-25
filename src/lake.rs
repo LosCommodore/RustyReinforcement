@@ -6,7 +6,7 @@ use anyhow::{Result, bail};
 use core::num;
 use rand::seq::IndexedRandom;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Direction {
     Up,
     Down,

@@ -1,4 +1,5 @@
 use num_traits::Num;
+use std::hash::Hash;
 
 pub struct StepResult<E: Environment + ?Sized> {
     pub observation: E::O,
@@ -8,9 +9,9 @@ pub struct StepResult<E: Environment + ?Sized> {
 }
 
 pub trait Environment {
-    type A: Copy; // Action
-    type O: Num + Copy; // Observation
-    type R: Num + Copy; // Reward
+    type A: Copy + Hash + Eq; // Action
+    type O: Num + Copy + Hash + Eq; // Observation
+    type R: Num + Copy + Hash; // Reward
 
     fn reset(&mut self) -> Self::O;
     fn step(&mut self, action: Self::A) -> StepResult<Self>;
