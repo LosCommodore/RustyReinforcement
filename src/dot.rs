@@ -43,6 +43,6 @@ impl DotRenderer {
 
         let template = self.env.get_template(TEMPLATE_NAME).unwrap();
 
-        template.render(nodes).unwrap()
+        template.render(context! { nodes }).unwrap()
     }
 }
